@@ -6,6 +6,7 @@ class Component:
     def __init__(self):
         self.serial = '_0'
         self._style = ''
+        self.on_click_callback = None
 
     def height(self, height: Union[str, int]) -> 'Component':
         if isinstance(height, int):
@@ -41,23 +42,31 @@ class Component:
         self._style += f'margin: {t}px {r}px {b}px {l}px; '
         return self
 
+    def on_click(self, callback: Callable) -> 'Component':
+        self.on_click_callback = callback
+
+        return self
+
     def html(self):
         raise NotImplementedError
+
 
 
 class Container(Component):
     def __init__(self, children: Union[Iterable, None]):
         super().__init__()
-        self.children: List[Component] = children if children is not None else []
+        self.children: Iterable[Component] = children if children is not None else []
 
     def html(self):
         print(self.serial)
         body = ''
-        serial_counter = 0
-        for child in self.children:
-            child.serial = self.serial + '_' + str(serial_counter)
+        c = tuple(self.children)
+        for i in range(c.__len__()):
+            child = tuple(c)[i]
+            child.serial = self.serial + '_' + str(i)
+            if child.on_click_callback is not None:
+                eel._expose(child.serial + 'click', child.on_click_callback)
             body += child.html()
-            serial_counter += 1
         return body
 
     def justify_center(self):
@@ -97,11 +106,19 @@ class Root(Container):
     <script>
         eel.expose(get_input_text);
         eel.expose(set_input_text);
+        eel.expose(set_image_src);
+        eel.expose(set_p_text);
         function get_input_text(id){' {'}
             return document.getElementById(id).value
         {'}'}
         function set_input_text(id, value){' {'}
             document.getElementById(id).value = value
+        {'}'}
+        function set_image_src(id, value) {' {'}
+            document.getElementById(id).src = value
+        {'}'}
+        function set_p_text(id, value) {' {'}
+            document.getElementById(id).innerHTML = value
         {'}'}
     </script>
 </head>
@@ -117,19 +134,11 @@ class Stack(Container):
     def html(self):
         body = super().html()
         html = f"<div style='{self._style}' onClick='eel.{self.serial}click()'>\n{body}\n</div>\n"
-        if self.click_callback is not None:
-            eel._expose(self.serial + 'click', self.click_callback)
         return html
 
     def __init__(self, children: Union[Iterable[Component], None]):
         super().__init__(children)
         self._style = ''
-        self.click_callback: Union[Callable, None] = None
-
-    def on_click(self, callback: Callable) -> 'Stack':
-        self.click_callback = callback
-
-        return self
 
 
 class HorizontalStack(Stack):
@@ -147,19 +156,11 @@ class Button(Container):
     def html(self):
         body = super().html()
         html = f'<Button style="{self._style}" onClick="eel.{self.serial}click()">{body}</Button>'
-        if self.on_click_callback is not None:
-            eel._expose(self.serial + 'click', self.on_click_callback)
         return html
 
     def __init__(self, children: Union[Iterable[Component], None] = None):
         super().__init__(children)
         self._style = ''
-        self.on_click_callback = None
-
-    def on_click(self, callback: Callable) -> 'Component':
-        self.on_click_callback = callback
-
-        return self
 
 
 class Input(Component):
@@ -170,7 +171,7 @@ class Input(Component):
             eel._expose(self.serial + 'keydown', self._on_keydown_callback)
         html = f'<input id="{self.serial}" style="{self._style}" ' \
                f'placeholder="{self.place_holder_value}" value="{self.default_value}"' \
-               f' onchange="eel.{self.serial}change(this.value)" onkeydown="eel.{self.serial}keydown()">'
+               f' onchange="eel.{self.serial}change(this.value)" onClick="eel.{self.serial}click()" onkeydown="eel.{self.serial}keydown()">'
         return html
 
     def __init__(self, place_holder: str = '', default: str = ''):
@@ -209,7 +210,7 @@ class Text(Component):
         self.text = text
 
     def html(self):
-        html = f'<p style="{self._style}">{self.text}</p>'
+        html = f'<p id="{self.serial}" onClick="eel.{self.serial}click()" style="{self._style}">{self.text}</p>'
         return html
 
     def font_size(self, size: int):
@@ -219,7 +220,7 @@ class Text(Component):
 
 class Image(Component):
     def html(self):
-        html = f'<img src="{self.src}" style="{self._style}"/>'
+        html = f'<img id="{self.serial}" onClick="eel.{self.serial}click()" src="{self.src}" style="{self._style}"/>'
         return html
 
     def __init__(self, src: str):
