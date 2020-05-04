@@ -8,5 +8,6 @@ setup(
         license='MIT',
         author='Kelly',
         author_email='',
-        description=''
+        description='',
+        install_requires=['eel'],
 )
