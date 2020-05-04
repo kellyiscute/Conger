@@ -1,4 +1,4 @@
-from .Components import *
+from .components import *
 import eel
 
 def get_input_value(serial: str):
@@ -15,6 +15,14 @@ def set_text(serial: str, text: str):
 
 def set_image_src(serial: str, src: str):
     eel.set_image_src(serial, src)
+
+
+def set_background(serial: str, color: str):
+    eel.set_background(serial, color)
+
+
+def set_font_color(serial: str, color: str):
+    eel.set_text_color(serial, color)
 
 
 def init(component: Component):

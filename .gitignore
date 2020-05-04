@@ -1,2 +1,4 @@
 test.py
 .idea/
+conger/__pycache__/
+*.pyc

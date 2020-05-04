@@ -5,7 +5,7 @@ from typing import Iterable, Union, List, Callable
 class Component:
     def __init__(self):
         self.serial = '_0'
-        self._style = ''
+        self._style = 'transition: all 0.5s; '
         self.on_click_callback = None
 
     def height(self, height: Union[str, int]) -> 'Component':
@@ -40,6 +40,22 @@ class Component:
 
     def margin(self, t: int, r: int, b: int, l: int):
         self._style += f'margin: {t}px {r}px {b}px {l}px; '
+        return self
+
+    def center_text(self):
+        self._style += f'text-align: center; '
+        return self
+
+    def font_size(self, size: int):
+        self._style += f'font-size: {size}px; '
+        return self
+
+    def shadow(self, color: str):
+        self._style += f'box-shadow: 0px 5px 6px {color}4f; '
+        return self
+
+    def rounded_corner(self, size: int):
+        self._style += f'border-radius: {size}px; '
         return self
 
     def on_click(self, callback: Callable) -> 'Component':
@@ -85,10 +101,6 @@ class Container(Component):
         self._style += 'align-items: center; '
         return self
 
-    def rounded_corner(self, size: int):
-        self._style += f'border-radius: {size}px'
-        return self
-
 class Root(Container):
     def __init__(self, title: str = '', children: Union[Iterable[Component], None] = None):
         super().__init__(children)
@@ -108,6 +120,8 @@ class Root(Container):
         eel.expose(set_input_text);
         eel.expose(set_image_src);
         eel.expose(set_p_text);
+        eel.expose(set_background);
+        eel.expose(set_text_color);
         function get_input_text(id){' {'}
             return document.getElementById(id).value
         {'}'}
@@ -119,6 +133,12 @@ class Root(Container):
         {'}'}
         function set_p_text(id, value) {' {'}
             document.getElementById(id).innerHTML = value
+        {'}'}
+        function set_background(id, value) {' {'}
+            document.getElementById(id).style.background = value
+        {'}'}
+        function set_text_color(id, value) {' {'}
+            document.getElementById(id).style.color = value
         {'}'}
     </script>
 </head>
@@ -155,7 +175,7 @@ class VerticalStack(Stack):
 class Button(Container):
     def html(self):
         body = super().html()
-        html = f'<Button style="{self._style}" onClick="eel.{self.serial}click()">{body}</Button>'
+        html = f'<Button id="{self.serial}" style="{self._style}user-select: none; outline: none;" onClick="eel.{self.serial}click()">{body}</Button>'
         return html
 
     def __init__(self, children: Union[Iterable[Component], None] = None):
