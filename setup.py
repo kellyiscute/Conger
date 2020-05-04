@@ -9,5 +9,5 @@ setup(
         author='Kelly',
         author_email='',
         description='',
-        install_requires=['eel'],
+        install_requires=['eel', 'pexpect'],
 )
