@@ -1,3 +1,5 @@
+import re
+
 import eel
 from typing import Iterable, Union, List, Callable
 
@@ -249,3 +251,22 @@ class Image(Component):
 
     def src(self, src: str):
         self.src = src
+
+
+def style(stylesheet: str, override=True):
+    with open(stylesheet, 'r') as ss:
+        stylesheet = ss.read()
+    css_pattern = re.compile(r'(^.[A-Za-z\-_0-9]*)(\s*:\s*([A-z]*))?\s*{($[^}]*)}$', flags=re.RegexFlag.MULTILINE)
+    line_pattern = re.compile(r'[A-Za-z\-]*\s*:\s*[^;]*;$', flags=re.RegexFlag.MULTILINE)
+    css_content = css_pattern.search(stylesheet).group(4)
+    lines = line_pattern.findall(css_content)
+    inline = ' '.join(lines)
+
+    def decorator(f: Callable[[], Component]):
+        component = f()
+        if override:
+            component._style += inline
+        else:
+            component._style = inline
+        return lambda: component
+    return decorator
