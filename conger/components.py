@@ -78,6 +78,8 @@ class Container(Component):
     def html(self):
         print(self.serial)
         body = ''
+        if self.children is None:
+            return body
         c = tuple(self.children)
         for i in range(c.__len__()):
             child = tuple(c)[i]
