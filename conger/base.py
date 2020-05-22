@@ -5,7 +5,7 @@ import eel
 class BaseComponent:
     def __init__(self):
         self.serial = '_0'
-        self._style = 'transition: all 0.5s; '
+        self._style = 'overflow: hidden; transition: all 0.5s; '
         self.on_click_callback = None
 
     def height(self, height: Union[str, int]) -> 'BaseComponent':
@@ -17,9 +17,9 @@ class BaseComponent:
 
     def width(self, width: Union[str, int]) -> 'BaseComponent':
         if isinstance(width, int):
-            self._style += f'width: {width}px; '
+            self._style += f'width: {width}px; flex: none; '
         else:
-            self._style += f'width: {width}; '
+            self._style += f'width: {width}; flex: none; '
         return self
 
     def padding(self, t: int, r: int, b: int, l: int) -> 'BaseComponent':

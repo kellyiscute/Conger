@@ -38,7 +38,9 @@ class TaskWidget():
                     .font_color('#FFFFFF')
                     .border(2, '#FFFFFF')
                     .rounded_corner(9999)
-                    .on_click(self.on_start_click),
+                    .on_click(self.on_start_click)
+                    .width(50),
+
         ))  .padding(10, 10, 10, 10) \
             .background(self.color) \
             .align_items_center() \

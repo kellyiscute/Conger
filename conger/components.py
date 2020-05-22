@@ -7,7 +7,7 @@ from conger.base import BaseContainer
 
 
 class Root(BaseContainer):
-    def __init__(self, title: str = '', children: Union[Iterable[BaseComponent], None] = None):
+    def __init__(self, title: str = 'Conger', children: Union[Iterable[BaseComponent], None] = None):
         super().__init__(children)
         self.children: List[BaseComponent] = children if children is not None else []
         self.title = title
@@ -63,7 +63,6 @@ class Container(BaseContainer):
 
     def __init__(self, children: Union[Iterable[BaseComponent], None]):
         super().__init__(children)
-        self._style = ''
 
 
 class HorizontalStack(Container):
@@ -85,7 +84,6 @@ class Button(BaseContainer):
 
     def __init__(self, children: Union[Iterable[BaseComponent], None] = None):
         super().__init__(children)
-        self._style = ''
 
 
 class Input(BaseComponent):
