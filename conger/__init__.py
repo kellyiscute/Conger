@@ -25,7 +25,7 @@ def set_font_color(serial: str, color: str):
     eel.set_text_color(serial, color)
 
 
-def init(component: Component):
+def init(component: BaseComponent):
     html = component.html()
     with open('main.html', 'w') as f:
         f.write(html)

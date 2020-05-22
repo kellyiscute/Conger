@@ -4,39 +4,39 @@ import eel
 from typing import Iterable, Union, List, Callable
 
 
-class Component:
+class BaseComponent:
     def __init__(self):
         self.serial = '_0'
         self._style = 'transition: all 0.5s; '
         self.on_click_callback = None
 
-    def height(self, height: Union[str, int]) -> 'Component':
+    def height(self, height: Union[str, int]) -> 'BaseComponent':
         if isinstance(height, int):
             self._style += f'height: {height}px; '
         else:
             self._style += f'height: {height}; '
         return self
 
-    def width(self, width: Union[str, int]) -> 'Component':
+    def width(self, width: Union[str, int]) -> 'BaseComponent':
         if isinstance(width, int):
             self._style += f'width: {width}px; '
         else:
             self._style += f'width: {width}; '
         return self
 
-    def padding(self, t: int, r: int, b: int, l: int) -> 'Component':
+    def padding(self, t: int, r: int, b: int, l: int) -> 'BaseComponent':
         self._style += f'padding: {t}px {r}px {b}px {l}px; '
         return self
 
-    def background(self, background: str) -> 'Component':
+    def background(self, background: str) -> 'BaseComponent':
         self._style += f'background: {background}; '
         return self
 
-    def font_color(self, color: str) -> 'Component':
+    def font_color(self, color: str) -> 'BaseComponent':
         self._style += f'color: {color}; '
         return self
 
-    def border(self, width: int, color: str) -> 'Component':
+    def border(self, width: int, color: str) -> 'BaseComponent':
         self._style += f'border: solid {width}px {color}; '
         return self
 
@@ -60,7 +60,7 @@ class Component:
         self._style += f'border-radius: {size}px; '
         return self
 
-    def on_click(self, callback: Callable) -> 'Component':
+    def on_click(self, callback: Callable) -> 'BaseComponent':
         self.on_click_callback = callback
 
         return self
@@ -70,10 +70,10 @@ class Component:
 
 
 
-class Container(Component):
+class BaseContainer(BaseComponent):
     def __init__(self, children: Union[Iterable, None]):
         super().__init__()
-        self.children: Iterable[Component] = children if children is not None else []
+        self.children: Iterable[BaseComponent] = children if children is not None else []
 
     def html(self):
         print(self.serial)
@@ -105,16 +105,16 @@ class Container(Component):
         self._style += 'align-items: center; '
         return self
 
-class Root(Container):
-    def __init__(self, title: str = '', children: Union[Iterable[Component], None] = None):
+class Root(BaseContainer):
+    def __init__(self, title: str = '', children: Union[Iterable[BaseComponent], None] = None):
         super().__init__(children)
-        self.children: List[Component] = children if children is not None else []
+        self.children: List[BaseComponent] = children if children is not None else []
         self.title = title
 
     def html(self):
         body = super().html()
         html = f"""<!DOCTYPE html>
-<html lang="en">
+<html lang="zh-cn">
 <head>
     <meta charset="UTF-8">
     <script type="text/javascript" src="/eel.js"></script>
@@ -154,40 +154,40 @@ class Root(Container):
         return html
 
 
-class Stack(Container):
+class Container(BaseContainer):
     def html(self):
         body = super().html()
         html = f"<div style='{self._style}' onClick='eel.{self.serial}click()'>\n{body}\n</div>\n"
         return html
 
-    def __init__(self, children: Union[Iterable[Component], None]):
+    def __init__(self, children: Union[Iterable[BaseComponent], None]):
         super().__init__(children)
         self._style = ''
 
 
-class HorizontalStack(Stack):
-    def __init__(self, children: Union[Iterable[Component], None] = None):
+class HorizontalStack(Container):
+    def __init__(self, children: Union[Iterable[BaseComponent], None] = None):
         super().__init__(children)
         self._style = 'display: flex; '
 
 
-class VerticalStack(Stack):
+class VerticalStack(Container):
     def __init__(self, children: Union[Iterable, None] = None):
         super().__init__(children)
 
 
-class Button(Container):
+class Button(BaseContainer):
     def html(self):
         body = super().html()
         html = f'<Button id="{self.serial}" style="{self._style}user-select: none; outline: none;" onClick="eel.{self.serial}click()">{body}</Button>'
         return html
 
-    def __init__(self, children: Union[Iterable[Component], None] = None):
+    def __init__(self, children: Union[Iterable[BaseComponent], None] = None):
         super().__init__(children)
         self._style = ''
 
 
-class Input(Component):
+class Input(BaseComponent):
     def html(self):
         if self._on_change_callback is not None:
             eel._expose(self.serial + 'change', self._on_change_callback)
@@ -228,7 +228,7 @@ class Input(Component):
         return self
 
 
-class Text(Component):
+class Text(BaseComponent):
     def __init__(self, text: str):
         super().__init__()
         self.text = text
@@ -242,7 +242,7 @@ class Text(Component):
         return self
 
 
-class Image(Component):
+class Image(BaseComponent):
     def html(self):
         html = f'<img id="{self.serial}" onClick="eel.{self.serial}click()" src="{self.src}" style="{self._style}"/>'
         return html
@@ -264,7 +264,7 @@ def style(stylesheet: str, override=True):
     lines = line_pattern.findall(css_content)
     inline = ' '.join(lines)
 
-    def decorator(f: Callable[[], Component]):
+    def decorator(f: Callable[[], BaseComponent]):
         component = f()
         if override:
             component._style += inline
