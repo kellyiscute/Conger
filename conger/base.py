@@ -79,9 +79,9 @@ class BaseContainer(BaseComponent):
             return body
         c = tuple(self.children)
         for i in range(c.__len__()):
-            child = tuple(c)[i]
+            child: BaseComponent = c[i]
             child.serial = self.serial + '_' + str(i)
-            if child.on_click_callback is not None:
+            if hasattr(child, 'on_click_callback') and child.on_click_callback is not None:
                 eel._expose(child.serial + 'click', child.on_click_callback)
             body += child.html()
         return body
