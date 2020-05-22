@@ -1,3 +1,4 @@
+from .base import BaseComponent
 from .components import *
 import eel
 
